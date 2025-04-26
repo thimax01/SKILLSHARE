@@ -20,6 +20,7 @@ const PostDetailPage = () => {
       setLoading(true);
       setError(null);
       
+<
       try {
         const postData = await getPost(postId);
         const comments = await getComments(postId);
