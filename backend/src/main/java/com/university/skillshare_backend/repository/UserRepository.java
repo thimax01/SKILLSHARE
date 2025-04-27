@@ -23,3 +23,5 @@ public interface UserRepository extends MongoRepository<User, String> {
     // Find users by username containing the given string, ignoring case (for mention suggestions)
     List<User> findByUsernameContainingIgnoreCase(String usernameFragment);
 }
+
+
