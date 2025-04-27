@@ -65,7 +65,7 @@ const Navigation = () => {
               to="/" 
               className="font-bold text-xl bg-gradient-to-r from-blue-500 to-green-500 text-transparent bg-clip-text"
             >
-              SKILLSHARE
+              SKILLSHARE_WEB
             </Link>
           </div>
           
