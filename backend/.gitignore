@@ -35,4 +35,3 @@ build/
 # Ignore sensitive configuration files
 /application.properties
 *.properties
-

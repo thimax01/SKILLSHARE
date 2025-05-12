@@ -2,147 +2,115 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Reset some base styles that conflict with Tailwind */
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: white; /* Changed from theme('colors.facebook.dark') */
-  color: black; /* Adjusted for better contrast */
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-}
-
-/* Override the previous styles that conflict with our layout */
-body {
-  display: block;
-  padding-top: 64px; /* Adjust this value to match the height of the navigation bar */
-}
-
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: black; /* Adjusted for light mode */
-  background-color: white; /* Changed from theme('colors.facebook.dark') */
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --primary: #0ea5e9;
+  --primary-dark: #0284c7;
+  --accent: #10b981;
+  --accent-dark: #059669;
+  --success: #22c55e;
+  --warning: #f97316;
+  --error: #ef4444;
+  --background: #f8fafc;
+  --text: #334155;
+  --text-light: #64748b;
 }
 
-a {
-  font-weight: 500;
-  color: theme('colors.facebook.primary'); /* Gradient applied */
-  text-decoration: inherit;
-}
-a:hover {
-  color: theme('colors.facebook.hover'); /* Gradient applied */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background: var(--background);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}
+
+.animate-reverse {
+  animation-direction: reverse;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Input focus styles */
+input:focus, textarea:focus {
+  @apply ring-2 ring-blue-500 ring-opacity-50 outline-none border-blue-500;
+  transition: all 0.2s ease;
+}
+
+/* Button hover effect */
 button {
-  border-radius: 6px;
-  border: none;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background: theme('colors.facebook.primary'); /* Gradient applied */
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.25s;
-}
-button:hover {
-  background: theme('colors.facebook.hover'); /* Gradient applied */
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: all 0.2s ease;
 }
 
-button.secondary {
-  background-color: theme('colors.facebook.button.secondary');
+.ripple {
+  position: relative;
+  overflow: hidden;
 }
 
-button.secondary:hover {
-  background-color: theme('colors.facebook.hover2');
+.ripple::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 1s;
 }
 
-input, select, textarea {
-  background-color: theme('colors.facebook.input');
-  border: 1px solid theme('colors.facebook.divider');
-  color: theme('colors.facebook.text.primary');
-  border-radius: 6px;
-  padding: 0.6em 1.2em;
+.ripple:active::after {
+  transform: scale(0, 0);
+  opacity: 0.3;
+  transition: 0s;
 }
 
-/* Cards and containers */
-.card {
-  background-color: theme('colors.facebook.card');
-  border-radius: 8px;
-  border: 1px solid theme('colors.facebook.divider');
+/* Custom gradients */
+.bg-skill-gradient {
+  @apply bg-gradient-to-r from-[#0ea5e9] to-[#10b981];
 }
 
-.highlight-comment {
-  animation: highlight 2s ease-out;
+.text-skill-gradient {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#10b981];
 }
 
-@keyframes highlight {
-  0% { background-color: #e3f2fd; }
-  100% { background-color: #f9fafb; }
-}
-
-/* When in light mode */
-@media (prefers-color-scheme: light) {
-  :root {
-    color: black; /* Adjusted for light mode */
-    background-color: white; /* Changed from #f0fdf4 */
-  }
-  a:hover {
-    color: #16a34a;  /* green-600 */
-  }
-  button {
-    background-color: #dcfce7;  /* green-100 */
-  }
-}
-
-/* Base styles */
-@layer base {
-  h1, h2, h3, h4, h5, h6 {
-    color: theme('colors.facebook.text.primary');
-  }
-  
-  p {
-    color: theme('colors.facebook.text.secondary');
-  }
-}
-
-/* Component styles */
-@layer components {
-  .card {
-    @apply bg-facebook-card border border-facebook-divider rounded-lg p-4;
-  }
-
-  .btn-primary {
-    @apply bg-facebook-primary hover:bg-facebook-hover text-white rounded-lg px-4 py-2;
-  }
-
-  .btn-secondary {
-    @apply bg-facebook-button-secondary hover:bg-facebook-hover2 text-facebook-text-primary rounded-lg px-4 py-2;
-  }
-
-  .input-field {
-    @apply bg-facebook-input border border-facebook-divider text-facebook-text-primary rounded-lg px-3 py-2;
-  }
-
-  .nav-link {
-    @apply text-facebook-text-primary hover:text-facebook-primary transition-colors;
-  }
+.hover-skill-gradient:hover {
+  @apply bg-gradient-to-r from-[#0284c7] to-[#059669];
 }

@@ -14,6 +14,3 @@ public interface SessionRepository extends MongoRepository<Session, String> {
     Optional<Session> findByUserIdAndDeviceInfoAndIsActiveTrue(String userId, String deviceInfo);
     List<Session> findByUserIdAndDeviceInfo(String userId, String deviceInfo);
 }
-
-
-
