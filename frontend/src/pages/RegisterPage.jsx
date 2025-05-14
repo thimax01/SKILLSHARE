@@ -627,7 +627,7 @@ const RegisterPage = () => {
                   <button
                     type="button"
                     onClick={goToNextStep}
-                    className="flex items-center px-4 py-2 bg-gradient-to-r from-[#3B82F6] via-[#38BDF8] to-[#10B981] text-white font-medium rounded-lg hover:opacity-90 transition-colors"
+                    className="flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-medium rounded-lg hover:opacity-90 transition-colors"
                   >
                     Continue
                     <ArrowRight className="h-5 w-5 ml-2" />
