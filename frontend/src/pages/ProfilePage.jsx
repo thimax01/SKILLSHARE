@@ -1009,7 +1009,7 @@ const ProfilePage = () => {
                 <span className="material-icons text-5xl text-gray-300 mb-4">article</span>
                 <h3 className="text-xl font-medium text-gray-700 mb-2">No posts yet</h3>
                 <p className="text-gray-500 mb-6">Share your knowledge with the community</p>
-                <button className="px-4 py-2 bg-[#4096FF] text-white rounded-md hover:bg-[#3085EE] transition-colors">
+                <button className="px-4 py-2 bg-[#4096FF] text-white rounded-md hover:bg-[#38BDF8] transition-colors">
                   Create Your First Post
                 </button>
               </div>
@@ -1034,7 +1034,7 @@ const ProfilePage = () => {
                 onClick={() => setSelectedCategory('all')}
                 className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
                   selectedCategory === 'all' 
-                    ? 'bg-gradient-to-r from-[#4096FF] to-[#12B981] text-white shadow-sm' 
+                    ? 'bg-gradient-to-r from-[#4096FF] to-[#38BDF8] text-white shadow-sm' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -1196,7 +1196,7 @@ const ProfilePage = () => {
                     Username
                   </label>
                   <input
-                    className="appearance-none border-2 border-gray-300 bg-white rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[#4096FF] transition-colors"
+                    className="appearance-none border-2 border-gray-300 bg-white rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[##38BDF8] transition-colors"
                     id="username"
                     name="username"
                     type="text"
@@ -1211,7 +1211,7 @@ const ProfilePage = () => {
                     Email Address
                   </label>
                   <input
-                    className="appearance-none border-2 border-gray-300 bg-white rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[#4096FF] transition-colors"
+                    className="appearance-none border-2 border-gray-300 bg-white rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:border-[##38BDF8] transition-colors"
                     id="email"
                     name="email"
                     type="email"
@@ -1320,7 +1320,7 @@ const ProfilePage = () => {
             <div className="flex justify-end">
               <button
                 type="button"
-                className="px-6 py-2.5 bg-gradient-to-r from-[#4096FF] to-[#12B981] text-white rounded-lg hover:from-[#3085EE] hover:to-[#0BA870] transition-colors shadow-sm"
+                className="px-6 py-2.5 bg-gradient-to-r from-[#4096FF] to-[#38BDF8] text-white rounded-lg hover:from-[#3085EE] hover:to-[#0BA870] transition-colors shadow-sm"
                 onClick={() => setIsEditing(true)}
               >
                 Edit Profile
