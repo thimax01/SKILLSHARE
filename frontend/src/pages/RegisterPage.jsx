@@ -380,7 +380,7 @@ const RegisterPage = () => {
           <div>
             <div className="flex items-center">
               <Sparkles className="text-white h-8 w-8 mr-2" />
-              <span className="text-2xl font-bold text-white">KnowFlow</span>
+              <span className="text-2xl font-bold text-white">SkillShare</span>
             </div>
             <div className="mt-16">
               <h1 className="text-4xl font-bold text-white mb-6">Share Your Knowledge, Grow Together</h1>
@@ -389,7 +389,7 @@ const RegisterPage = () => {
               </p>
             </div>
           </div>
-          <p className="text-white/70">© 2025 KnowFlow. All rights reserved.</p>
+          <p className="text-white/70">© 2025 SkillShare. All rights reserved.</p>
         </div>
 
         {/* Right Side - Register Form */}
