@@ -189,7 +189,7 @@ const AchievementsPage = () => {
     <div className="max-w-4xl mx-auto mt-8 p-4 animate-fade-in">
       <div className="mb-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4096FF] to-[#12B981]">
+          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4096FF] to-[#36B7CD]">
             Achievements
           </h1>
           <button 
