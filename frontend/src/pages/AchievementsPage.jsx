@@ -111,22 +111,30 @@ const AchievementsPage = () => {
   }, [currentUser]);
 
   const fetchAchievements = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('skillshare_token');
-      const response = await axios.get('http://localhost:8081/api/achievements', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setAchievements(response.data);
-    } catch (err) {
-      console.error('Error fetching achievements:', err);
-      setError('Failed to load achievements');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const token = localStorage.getItem('skillshare_token');
+    const response = await axios.get('http://localhost:8081/api/achievements', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = response.data;
+    setAchievements(data);
+
+    // Extract unique non-empty categories from achievements
+    const uniqueCategories = [...new Set(data.map(a => a.category).filter(Boolean))];
+    setCategories(uniqueCategories);
+
+  } catch (err) {
+    console.error('Error fetching achievements:', err);
+    setError('Failed to load achievements');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const fetchCategories = async () => {
     try {
