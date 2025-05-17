@@ -807,8 +807,6 @@
 
 
 
-
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -817,7 +815,7 @@ import { useUser } from '../contexts/UserContext';
 import ConfirmationModal from '../components/ConfirmationModal';
 import Alert from '../components/Alert';
 import GroupManagement from '../components/GroupManagement';
-import { Users, Clock, BookOpen, UserPlus, ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import { Users, Clock, BookOpen, UserPlus, ArrowLeft, Edit, Trash2, Globe, Lock } from 'lucide-react';
 
 const GroupDetailPage = () => {
   const { groupId } = useParams();
@@ -828,6 +826,7 @@ const GroupDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const { currentUser } = useUser();
+  const [activeTab, setActiveTab] = useState('posts');
   
   const [editForm, setEditForm] = useState({
     name: '',
@@ -835,7 +834,6 @@ const GroupDetailPage = () => {
     isPublic: true
   });
 
-  const [activeTab, setActiveTab] = useState('posts');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [alert, setAlert] = useState({ isOpen: false, type: '', message: '' });
@@ -897,7 +895,6 @@ const GroupDetailPage = () => {
         setPosts(postsResponse.data);
         setMembers(membersResponse.data);
         
-        // Initialize form with correct field names
         setEditForm({
           name: groupResponse.data.name || '',
           description: groupResponse.data.description || '',
@@ -958,6 +955,49 @@ const GroupDetailPage = () => {
     });
   };
 
+  const handleJoinGroup = async () => {
+    try {
+      const token = localStorage.getItem('skillshare_token');
+      await axios.post(
+        `http://localhost:8081/api/groups/${groupId}/join?userId=${currentUser.id}`,
+        {},
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      const membersResponse = await axios.get(
+        `http://localhost:8081/api/groups/${groupId}/members`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      setMembers(membersResponse.data);
+      setAlert({ isOpen: true, type: 'success', message: 'Successfully joined the group!' });
+    } catch (error) {
+      console.error('Error joining group:', error);
+      setAlert({ isOpen: true, type: 'error', message: error.response?.data?.message || 'Failed to join group' });
+    }
+  };
+
+  const handleLeaveGroup = async () => {
+    try {
+      const token = localStorage.getItem('skillshare_token');
+      await axios.delete(
+        `http://localhost:8081/api/groups/${groupId}/leave?userId=${currentUser.id}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      const membersResponse = await axios.get(
+        `http://localhost:8081/api/groups/${groupId}/members`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      setMembers(membersResponse.data);
+      setAlert({ isOpen: true, type: 'success', message: 'Successfully left the group' });
+    } catch (error) {
+      console.error('Error leaving group:', error);
+      setAlert({ isOpen: true, type: 'error', message: error.response?.data?.message || 'Failed to leave group' });
+    }
+  };
+
   const handleRemoveMember = (memberId) => {
     setModalConfig({
       isOpen: true,
@@ -990,51 +1030,6 @@ const GroupDetailPage = () => {
 
   const handleCancelAction = () => {
     setModalConfig({ isOpen: false, title: '', message: '', action: null, type: null });
-  };
-
-  const handleJoinGroup = async () => {
-    try {
-      const token = localStorage.getItem('skillshare_token');
-      await axios.post(
-        `http://localhost:8081/api/groups/${groupId}/join?userId=${currentUser.id}`,
-        {},
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      
-      // Refetch members to update the UI
-      const membersResponse = await axios.get(
-        `http://localhost:8081/api/groups/${groupId}/members`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      
-      setMembers(membersResponse.data);
-      setAlert({ isOpen: true, type: 'success', message: 'Successfully joined the group!' });
-    } catch (error) {
-      console.error('Error joining group:', error);
-      setAlert({ isOpen: true, type: 'error', message: error.response?.data?.message || 'Failed to join group' });
-    }
-  };
-
-  const handleLeaveGroup = async () => {
-    try {
-      const token = localStorage.getItem('skillshare_token');
-      await axios.delete(
-        `http://localhost:8081/api/groups/${groupId}/leave?userId=${currentUser.id}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      
-      // Refetch members to update the UI
-      const membersResponse = await axios.get(
-        `http://localhost:8081/api/groups/${groupId}/members`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      
-      setMembers(membersResponse.data);
-      setAlert({ isOpen: true, type: 'success', message: 'Successfully left the group' });
-    } catch (error) {
-      console.error('Error leaving group:', error);
-      setAlert({ isOpen: true, type: 'error', message: error.response?.data?.message || 'Failed to leave group' });
-    }
   };
 
   if (loading) {
@@ -1270,23 +1265,21 @@ const GroupDetailPage = () => {
             ) : (
               <div className="space-y-4">
                 {posts.map(post => (
-                  <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div className="bg-white p-1">
-                      {isOwner && (
-                        <div className="flex justify-end px-4">
-                          <button
-                            onClick={() => openModal(post.id)}
-                            className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
-                          >
-                            Remove Post
-                          </button>
-                        </div>
-                      )}
-                      <PostCard 
-                        post={post} 
-                        userId={currentUser?.id}
-                      />
-                    </div>
+                  <div key={post.id} className="relative">
+                    {isOwner && (
+                      <div className="max-w-2xl mx-auto justify-end flex space-x-2 pr-4">
+                        <span
+                          onClick={() => openModal(post.id)}
+                          className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700 font-semibold cursor-pointer hover:underline"
+                        >
+                          Remove Post
+                        </span>
+                      </div>
+                    )}
+                    <PostCard 
+                      post={post} 
+                      userId={currentUser?.id}
+                    />
                   </div>
                 ))}
               </div>
