@@ -337,7 +337,7 @@
 
 
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useUser } from '../contexts/UserContext';
 
@@ -355,7 +355,6 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
   const [selectedTemplate, setSelectedTemplate] = useState(initialData?.template || 1);
   
   const categories = ['Technical', 'Professional', 'Academic', 'Personal', 'Other'];
-  
   const { currentUser } = useUser();
 
   const handleImageChange = (e) => {
@@ -387,23 +386,16 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
         videoUrl,
         category,
         template: selectedTemplate,
-        imageUrl: initialData?.imageUrl // Preserve existing imageUrl
+        imageUrl: initialData?.imageUrl
       };
 
-      // Default headers configuration
       const config = {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token || ''
         }
       };
 
-      // Add auth token if available
-      if (token) {
-        config.headers['Authorization'] = token;
-      }
-
-      let response;
-      
       if (image) {
         const formData = new FormData();
         formData.append('file', image);
@@ -421,54 +413,52 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
 
         if (uploadResponse.data?.url) {
           achievement.imageUrl = uploadResponse.data.url;
-        } else {
-          throw new Error('Invalid upload response');
         }
       }
 
-      if (isEditing) {
-        response = await axios.put(
-          `http://localhost:8081/api/achievements/${initialData.id}?userId=${currentUser.id}`,
-          achievement,
-          config
-        );
-      } else {
-        response = await axios.post('http://localhost:8081/api/achievements', achievement, config);
-      }
+      const response = isEditing
+        ? await axios.put(
+            `http://localhost:8081/api/achievements/${initialData.id}?userId=${currentUser.id}`,
+            achievement,
+            config
+          )
+        : await axios.post('http://localhost:8081/api/achievements', achievement, config);
 
       if (response.data && onAchievementCreated) {
         onAchievementCreated(response.data);
         if (!isEditing) {
-          setTitle('');
-          setDescription('');
-          setVideoUrl('');
-          setImage(null);
-          setImagePreview('');
-          setSelectedTemplate(1);
-          setShowForm(false);
+          resetForm();
         } else if (onCancel) {
           onCancel();
         }
       }
     } catch (error) {
-      if (error.response?.status === 401) {
-        setError('Please log in to share achievements');
-      } else {
-        setError(error.response?.data?.message || 'Failed to save achievement');
-      }
+      setError(error.response?.status === 401
+        ? 'Please log in to share achievements'
+        : error.response?.data?.message || 'Failed to save achievement');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const resetForm = () => {
+    setTitle('');
+    setDescription('');
+    setVideoUrl('');
+    setImage(null);
+    setImagePreview('');
+    setSelectedTemplate(1);
+    setShowForm(false);
+  };
+
   if (!showForm && !isEditing) {
     return (
-      <div className="bg-white p-5 rounded-lg shadow-md mb-6 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         <button
           onClick={() => setShowForm(true)}
-          className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg hover:from-blue-600 hover:to-green-600 transition-all duration-300 transform hover:scale-[1.01] shadow-sm flex items-center justify-center space-x-2"
+          className="w-full py-3 bg-gradient-to-r from-[#4285F4] to-[#36B7CD] text-white rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center space-x-2 group"
         >
-          <span className="material-icons text-xl">add_circle</span>
+          <span className="material-icons text-xl group-hover:scale-110 transition-transform">add_circle</span>
           <span className="font-medium">Share New Achievement</span>
         </button>
       </div>
@@ -476,46 +466,45 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-6 transition-all duration-300 animate-fade-in">
-      <div className="flex flex-col md:flex-row md:space-x-6">
-        {/* Left: Form Section */}
+    <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+      <div className="flex flex-col md:flex-row md:space-x-8">
         <div className="flex-1">
-          <h2 className="text-xl font-bold mb-5 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-500">
+          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-[#4285F4] to-[#36B7CD] bg-clip-text text-transparent">
             {isEditing ? 'Edit Achievement' : 'Share New Achievement'}
           </h2>
           
           {error && (
-            <div className="mb-5 p-4 bg-red-50 text-red-600 rounded-lg border border-red-100 animate-fade-in">
-              <div className="flex items-center space-x-2">
-                <span className="material-icons text-red-500">error</span>
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg animate-fade-in">
+              <div className="flex items-center text-red-700">
+                <span className="material-icons mr-2">error_outline</span>
                 <span>{error}</span>
               </div>
             </div>
           )}
           
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Title
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#4285F4] focus:border-transparent transition-all"
                 placeholder="What did you achieve?"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#4285F4] focus:border-transparent transition-all"
                 rows="4"
                 placeholder="Tell us about your achievement..."
                 required
@@ -523,10 +512,10 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Image
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-500 transition-colors cursor-pointer">
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-[#4285F4] transition-colors cursor-pointer group">
                 <input
                   type="file"
                   accept="image/*"
@@ -540,17 +529,19 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
                       <img
                         src={imagePreview}
                         alt="Preview"
-                        className="mx-auto max-h-48 rounded-md"
+                        className="mx-auto max-h-48 rounded-lg shadow-md"
                       />
-                      <div className="mt-2 flex justify-center">
-                        <span className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                      <div className="mt-3">
+                        <span className="text-sm text-[#4285F4] group-hover:text-[#36B7CD] transition-colors">
                           Change Image
                         </span>
                       </div>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center">
-                      <span className="material-icons text-3xl text-gray-400">add_photo_alternate</span>
+                      <span className="material-icons text-4xl text-gray-400 group-hover:text-[#4285F4] transition-colors">
+                        add_photo_alternate
+                      </span>
                       <span className="mt-2 text-sm text-gray-500">
                         Drag & drop an image or click to browse
                       </span>
@@ -561,34 +552,34 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 YouTube Video URL
               </label>
               <input
                 type="url"
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#4285F4] focus:border-transparent transition-all"
                 placeholder="https://www.youtube.com/watch?v=..."
               />
               {videoUrl && getVideoId(videoUrl) && (
-                <div className="mt-2 bg-gray-50 p-2 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <span className="material-icons text-red-600">play_circle</span>
-                    <span className="text-sm text-gray-600">Video preview available</span>
+                <div className="mt-2 p-3 bg-[#4285F4]/5 rounded-lg">
+                  <div className="flex items-center text-[#4285F4]">
+                    <span className="material-icons mr-2">play_circle</span>
+                    <span className="text-sm">Video preview available</span>
                   </div>
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#4285F4] focus:border-transparent transition-all"
                 required
               >
                 <option value="">Select a category</option>
@@ -598,40 +589,42 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
               </select>
             </div>
 
-            {/* Template Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Select Layout
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 {[1, 2, 3].map((template) => (
                   <div 
                     key={template}
-                    className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedTemplate === template 
-                        ? 'border-blue-500 bg-blue-50 shadow-sm transform scale-[1.02]' 
-                        : 'border-gray-300 hover:border-blue-300'
-                    }`}
                     onClick={() => setSelectedTemplate(template)}
+                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                      selectedTemplate === template 
+                        ? 'border-[#4285F4] bg-[#4285F4]/5 shadow-md scale-[1.02]' 
+                        : 'border-gray-200 hover:border-[#4285F4]/50'
+                    }`}
                   >
                     <div className="flex justify-between items-center mb-2">
-                      <span className={`font-medium ${selectedTemplate === template ? 'text-blue-700' : 'text-gray-700'}`}>
+                      <span className={`font-medium ${
+                        selectedTemplate === template ? 'text-[#4285F4]' : 'text-gray-700'
+                      }`}>
                         Layout {template}
                       </span>
                       <input 
-                        type="radio" 
-                        name="template" 
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                        checked={selectedTemplate === template} 
-                        onChange={() => setSelectedTemplate(template)} 
+                        type="radio"
+                        checked={selectedTemplate === template}
+                        onChange={() => setSelectedTemplate(template)}
+                        className="h-4 w-4 text-[#4285F4] focus:ring-[#4285F4]"
                       />
                     </div>
-                    <div className={`h-20 ${
+                    <div className={`h-16 rounded-lg flex items-center justify-center ${
                       selectedTemplate === template 
-                        ? 'bg-gradient-to-br from-blue-100 to-green-100' 
-                        : 'bg-gray-100'
-                    } flex items-center justify-center rounded-lg transition-colors`}>
-                      <span className={`text-xs ${selectedTemplate === template ? 'text-blue-800' : 'text-gray-500'}`}>
+                        ? 'bg-gradient-to-br from-[#4285F4]/20 to-[#36B7CD]/20' 
+                        : 'bg-gray-50'
+                    }`}>
+                      <span className={`text-xs ${
+                        selectedTemplate === template ? 'text-[#4285F4]' : 'text-gray-500'
+                      }`}>
                         {template === 1 ? "Classic" : template === 2 ? "Profile" : "Banner"}
                       </span>
                     </div>
@@ -640,106 +633,94 @@ const AchievementForm = ({ onAchievementCreated, initialData, isEditing, onCance
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 pt-3">
+            <div className="flex justify-end space-x-4 pt-6">
               <button
                 type="button"
                 onClick={onCancel || (() => setShowForm(false))}
-                className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`px-5 py-2.5 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg hover:from-blue-600 hover:to-green-600 transition-colors ${
-                  isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                className={`px-6 py-2.5 bg-gradient-to-r from-[#4285F4] to-[#36B7CD] text-white rounded-lg hover:shadow-lg transition-all ${
+                  isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
                 }`}
               >
-                {isSubmitting ? 'Saving...' : (isEditing ? 'Save Changes' : 'Share Achievement')}
+                {isSubmitting ? (
+                  <span className="flex items-center">
+                    <span className="material-icons animate-spin mr-2">refresh</span>
+                    Saving...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <span className="material-icons mr-2">
+                      {isEditing ? 'save' : 'add_circle'}
+                    </span>
+                    {isEditing ? 'Save Changes' : 'Share Achievement'}
+                  </span>
+                )}
               </button>
             </div>
           </form>
         </div>
 
-        {/* Right: Preview Section */}
-        <div className="md:w-1/3 mt-6 md:mt-0">
+        <div className="hidden lg:block w-80">
           <div className="sticky top-4">
             <h3 className="text-lg font-medium mb-4 text-gray-800">Preview</h3>
             <div className="space-y-4">
-              {/* Template Preview */}
-              <div className={`border rounded-lg shadow-sm overflow-hidden transition-all duration-300 ${
-                selectedTemplate === 1 
-                  ? 'border-blue-200 scale-100' 
-                  : 'border-gray-200 scale-95 opacity-60'
-              }`}>
-                <div className="p-4">
-                  <h4 className="font-semibold text-gray-800">{title || 'Achievement Title'}</h4>
-                  <p className="text-xs text-gray-500">
-                    By {currentUser?.fullName || currentUser?.username || 'You'}
-                  </p>
-                  <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-800 text-xs rounded-full mt-1">
-                    {category || 'Category'}
-                  </span>
-                  
-                  {imagePreview && (
-                    <div className="my-2">
-                      <img src={imagePreview} alt="Preview" className="w-full h-auto max-h-28 object-cover rounded-md" />
-                    </div>
-                  )}
-                  
-                  <p className="text-sm text-gray-600 line-clamp-2 mt-2">
-                    {description || 'Your achievement description will appear here'}
-                  </p>
-                </div>
-              </div>
-              
-              <div className={`border rounded-lg shadow-sm overflow-hidden transition-all duration-300 ${
-                selectedTemplate === 2 
-                  ? 'border-blue-200 scale-100' 
-                  : 'border-gray-200 scale-95 opacity-60'
-              }`}>
-                <div className="p-4">
-                  <div className="flex">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="w-16 h-16 rounded-full object-cover mr-4" />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-200 mr-4 flex items-center justify-center">
-                        <span className="text-xs text-gray-500">Image</span>
+              {[1, 2, 3].map((template) => (
+                <div
+                  key={template}
+                  className={`border rounded-lg overflow-hidden transition-all duration-300 ${
+                    selectedTemplate === template 
+                      ? 'border-[#4285F4] shadow-md scale-100' 
+                      : 'border-gray-200 scale-95 opacity-60'
+                  }`}
+                >
+                  <div className="p-4">
+                    <h4 className="font-semibold text-gray-800">{title || 'Achievement Title'}</h4>
+                    <p className="text-xs text-gray-500">
+                      By {currentUser?.fullName || currentUser?.username || 'You'}
+                    </p>
+                    <span className="inline-block px-2 py-0.5 bg-[#4285F4]/10 text-[#4285F4] text-xs rounded-full mt-1">
+                      {category || 'Category'}
+                    </span>
+                    
+                    {imagePreview && template !== 2 && (
+                      <div className="my-2">
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview" 
+                          className="w-full h-24 object-cover rounded-md"
+                        />
                       </div>
                     )}
-                    <div>
-                      <h4 className="font-semibold text-gray-800">{title || 'Achievement Title'}</h4>
-                      <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full mt-0.5">
-                        {category || 'Category'}
-                      </span>
-                      <p className="text-sm text-gray-600 line-clamp-2 mt-1">
+                    
+                    {template === 2 && imagePreview && (
+                      <div className="flex items-center mt-2">
+                        <img 
+                          src={imagePreview} 
+                          alt="Preview" 
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <div className="ml-3 flex-1">
+                          <p className="text-xs text-gray-600 line-clamp-2">
+                            {description || 'Your achievement description will appear here'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {template !== 2 && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mt-2">
                         {description || 'Your achievement description will appear here'}
                       </p>
-                    </div>
+                    )}
                   </div>
                 </div>
-              </div>
-              
-              <div className={`border rounded-lg shadow-sm overflow-hidden transition-all duration-300 ${
-                selectedTemplate === 3 
-                  ? 'border-blue-200 scale-100' 
-                  : 'border-gray-200 scale-95 opacity-60'
-              }`}>
-                {imagePreview ? (
-                  <div className="h-24 bg-cover bg-center" style={{ backgroundImage: `url(${imagePreview})` }}></div>
-                ) : (
-                  <div className="h-24 bg-gradient-to-r from-blue-500 to-green-500"></div>
-                )}
-                <div className="p-4">
-                  <span className="inline-block px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded-full mb-1">
-                    {category || 'Category'}
-                  </span>
-                  <h4 className="font-bold text-gray-800">{title || 'Achievement Title'}</h4>
-                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                    {description || 'Your achievement description will appear here'}
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

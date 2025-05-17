@@ -1,14 +1,284 @@
+// import { useState, useEffect } from 'react';
+// import { useUser } from '../contexts/UserContext';
+// import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
+
+// const NotificationsPage = () => {
+//   const [notifications, setNotifications] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [activeTab, setActiveTab] = useState('all'); // 'all' or 'unread'
+//   const { currentUser } = useUser();
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     if (currentUser) {
+//       fetchNotifications();
+//     }
+//   }, [currentUser, activeTab]);
+
+//   const fetchNotifications = async () => {
+//     if (!currentUser) return;
+    
+//     setLoading(true);
+//     try {
+//       const endpoint = activeTab === 'unread'
+//         ? `http://localhost:8081/api/notifications/user/${currentUser.id}/unread`
+//         : `http://localhost:8081/api/notifications/user/${currentUser.id}`;
+        
+//       const response = await axios.get(endpoint);
+//       setNotifications(response.data);
+//     } catch (error) {
+//       console.error('Error fetching notifications:', error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleMarkAsRead = async (notificationId) => {
+//     try {
+//       await axios.put(`http://localhost:8081/api/notifications/${notificationId}/read`);
+//       setNotifications(notifications.map(n => 
+//         n.id === notificationId ? { ...n, read: true } : n
+//       ));
+//     } catch (error) {
+//       console.error('Error marking notification as read:', error);
+//     }
+//   };
+
+//   const handleMarkAsUnread = async (notificationId) => {
+//     try {
+//       await axios.put(`http://localhost:8081/api/notifications/${notificationId}/unread`);
+//       setNotifications(notifications.map(n => 
+//         n.id === notificationId ? { ...n, read: false } : n
+//       ));
+//     } catch (error) {
+//       console.error('Error marking notification as unread:', error);
+//     }
+//   };
+
+//   const handleMarkAllAsRead = async () => {
+//     try {
+//       await axios.put(`http://localhost:8081/api/notifications/user/${currentUser.id}/read-all`);
+//       setNotifications(notifications.map(n => ({ ...n, read: true })));
+//     } catch (error) {
+//       console.error('Error marking all as read:', error);
+//     }
+//   };
+
+//   const handleDelete = async (notificationId) => {
+//     try {
+//       await axios.delete(`http://localhost:8081/api/notifications/${notificationId}`);
+//       setNotifications(notifications.filter(n => n.id !== notificationId));
+//     } catch (error) {
+//       console.error('Error deleting notification:', error);
+//     }
+//   };
+
+//   const handleNotificationClick = (notification) => {
+//     // Mark as read if unread
+//     if (!notification.read) {
+//       handleMarkAsRead(notification.id);
+//     }
+    
+//     // Navigate to related content if available
+//     if (notification.relatedItemId) {
+//       if (notification.type === 'COMMENT' || notification.type === 'LIKE' || notification.type === 'MENTION') {
+//         navigate(`/post/${notification.relatedItemId}`);
+//       } else if (notification.type === 'FOLLOW') {
+//         navigate(`/profile/${notification.relatedItemId}`);
+//       }
+//     }
+//   };
+
+//   const formatDate = (dateString) => {
+//     const options = { 
+//       year: 'numeric', 
+//       month: 'short', 
+//       day: 'numeric', 
+//       hour: '2-digit', 
+//       minute: '2-digit' 
+//     };
+//     return new Date(dateString).toLocaleDateString(undefined, options);
+//   };
+
+//   const getNotificationTypeIcon = (type) => {
+//     switch (type) {
+//       case 'LIKE':
+//         return (
+//           <div className="p-2 rounded-full bg-pink-100 text-pink-600">
+//             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//               <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+//             </svg>
+//           </div>
+//         );
+//       case 'COMMENT':
+//         return (
+//           <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+//             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//               <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
+//             </svg>
+//           </div>
+//         );
+//       case 'MENTION':
+//         return (
+//           <div className="p-2 rounded-full bg-purple-100 text-purple-600">
+//             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//               <path fillRule="evenodd" d="M14.243 5.757a6 6 0 10-.986 9.284 1 1 0 111.087 1.678A8 8 0 1118 10a3 3 0 01-4.8 2.401A4 4 0 1114 10a1 1 0 102 0c0-1.537-.586-3.07-1.757-4.243zM12 10a2 2 0 10-4 0 2 2 0 004 0z" clipRule="evenodd" />
+//             </svg>
+//           </div>
+//         );
+//       case 'FOLLOW':
+//         return (
+//           <div className="p-2 rounded-full bg-green-100 text-green-600">
+//             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//               <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+//             </svg>
+//           </div>
+//         );
+//       default:
+//         return (
+//           <div className="p-2 rounded-full bg-gray-100 text-gray-600">
+//             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+//               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+//             </svg>
+//           </div>
+//         );
+//     }
+//   };
+
+//   if (!currentUser) {
+//     return (
+//       <div className="flex justify-center items-center h-64">
+//         <p className="text-gray-500">Please log in to view your notifications</p>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="container mx-auto max-w-4xl px-4 py-8">
+//       <div className="bg-facebook-card shadow-lg rounded-lg overflow-hidden text-facebook-text-primary border border-facebook-divider">
+//         <div className="bg-gradient-to-r from-facebook-primary to-facebook-hover px-6 py-8 text-white">
+//           <h1 className="text-3xl font-bold">Notifications</h1>
+//           <p className="text-white/80">Stay updated with your latest activities</p>
+//         </div>
+        
+//         <div className="flex border-b border-facebook-divider">
+//           <span 
+//             className={`flex-1 py-3 px-4 font-medium text-center cursor-pointer ${
+//               activeTab === 'all' 
+//                 ? 'text-facebook-primary border-b-2 border-facebook-primary' 
+//                 : 'text-facebook-text-secondary hover:text-facebook-text-primary'
+//             }`} 
+//             onClick={() => setActiveTab('all')}
+//           >
+//             All
+//           </span>
+//           <span 
+//             className={`flex-1 py-3 px-4 font-medium text-center cursor-pointer ${
+//               activeTab === 'unread' 
+//                 ? 'text-indigo-600 border-b-2 border-indigo-600' 
+//                 : 'text-gray-500 hover:text-gray-700'
+//             }`}
+//             onClick={() => setActiveTab('unread')}
+//           >
+//             Unread
+//           </span>
+//         </div>
+        
+//         <div className="px-6 py-4 flex justify-between items-center border-b">
+//           <h2 className="text-lg font-medium text-gray-800">Your Notifications</h2>
+//           <span 
+//             onClick={handleMarkAllAsRead}
+//             className="text-sm text-indigo-600 cursor-pointer hover:text-indigo-800 transition duration-300"
+//           >
+//             Mark all as read
+//           </span>
+//         </div>
+        
+//         <div className="divide-y divide-gray-200">
+//           {loading ? (
+//             <div className="flex justify-center items-center py-20">
+//               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+//             </div>
+//           ) : notifications.length === 0 ? (
+//             <div className="py-20 text-center text-gray-500">
+//               <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+//               </svg>
+//               <p className="mt-4">No {activeTab === 'unread' ? 'unread ' : ''}notifications found</p>
+//             </div>
+//           ) : (
+//             <ul>
+//               {notifications.map(notification => (
+//                 <li key={notification.id} className={`p-6 hover:bg-gray-50 ${notification.read ? '' : 'bg-indigo-50'}`}>
+//                   <div className="flex items-center">
+//                     <div className="flex-shrink-0">
+//                       {getNotificationTypeIcon(notification.type)}
+//                     </div>
+                    
+//                     <div 
+//                       className="ml-4 flex-grow cursor-pointer"
+//                       onClick={() => handleNotificationClick(notification)}
+//                     >
+//                       <div className="font-medium text-gray-900">{notification.title}</div>
+//                       <div className="text-gray-600">{notification.message}</div>
+//                       <div className="text-sm text-gray-500 mt-1">{formatDate(notification.createdAt)}</div>
+//                     </div>
+                    
+//                     <div className="flex-shrink-0 ml-4 space-x-2">
+//                       {notification.read ? (
+//                         <button 
+//                           onClick={() => handleMarkAsUnread(notification.id)}
+//                           className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 hover:text-gray-900 transition duration-300"
+//                         >
+//                           Mark as unread
+//                         </button>
+//                       ) : (
+//                         <button 
+//                           onClick={() => handleMarkAsRead(notification.id)}
+//                           className="px-3 py-1 text-sm bg-indigo-500 text-white rounded hover:bg-indigo-600 transition duration-300"
+//                         >
+//                           Mark as read
+//                         </button>
+//                       )}
+//                       <span 
+//                         onClick={() => handleDelete(notification.id)}
+//                         className="px-3 py-1 text-sm text-white rounded bg-gradient-to-r from-blue-500 to-red-500 hover:from-blue-600 hover:to-red-600 transition duration-300 cursor-pointer"
+//                       >
+//                         Delete
+//                       </span>
+//                     </div>
+//                   </div>
+//                 </li>
+//               ))}
+//             </ul>
+//           )}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default NotificationsPage;
+
+
+
+
+
+
+
+
+
 import { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Bell, Heart, MessageSquare, AtSign, UserPlus, Info, Check as CheckAll, MoreVertical, CheckCheck, Eye, Trash2 } from 'lucide-react';
 
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('all'); // 'all' or 'unread'
+  const [activeTab, setActiveTab] = useState('all');
   const { currentUser } = useUser();
-  const navigate = useNavigate();
+  const [selectedNotification, setSelectedNotification] = useState(null);
 
   useEffect(() => {
     if (currentUser) {
@@ -25,8 +295,33 @@ const NotificationsPage = () => {
         ? `http://localhost:8081/api/notifications/user/${currentUser.id}/unread`
         : `http://localhost:8081/api/notifications/user/${currentUser.id}`;
         
-      const response = await axios.get(endpoint);
-      setNotifications(response.data);
+      // Simulating API call delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // In your actual implementation, replace this with your API call
+      const mockData = [
+        {
+          id: '1',
+          title: 'New Like',
+          message: 'Alex Chen liked your post "React Hooks: A Comprehensive Guide"',
+          type: 'LIKE',
+          read: false,
+          createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+          relatedItemId: 'post-123'
+        },
+        {
+          id: '2',
+          title: 'New Comment',
+          message: 'Jordan Lee commented on your post "Building Responsive UIs"',
+          type: 'COMMENT',
+          read: false,
+          createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+          relatedItemId: 'post-456'
+        },
+        // Add more mock notifications as needed
+      ];
+      
+      setNotifications(mockData);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     } finally {
@@ -36,7 +331,9 @@ const NotificationsPage = () => {
 
   const handleMarkAsRead = async (notificationId) => {
     try {
-      await axios.put(`http://localhost:8081/api/notifications/${notificationId}/read`);
+      await fetch(`http://localhost:8081/api/notifications/${notificationId}/read`, {
+        method: 'PUT'
+      });
       setNotifications(notifications.map(n => 
         n.id === notificationId ? { ...n, read: true } : n
       ));
@@ -47,7 +344,9 @@ const NotificationsPage = () => {
 
   const handleMarkAsUnread = async (notificationId) => {
     try {
-      await axios.put(`http://localhost:8081/api/notifications/${notificationId}/unread`);
+      await fetch(`http://localhost:8081/api/notifications/${notificationId}/unread`, {
+        method: 'PUT'
+      });
       setNotifications(notifications.map(n => 
         n.id === notificationId ? { ...n, read: false } : n
       ));
@@ -58,7 +357,9 @@ const NotificationsPage = () => {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await axios.put(`http://localhost:8081/api/notifications/user/${currentUser.id}/read-all`);
+      await fetch(`http://localhost:8081/api/notifications/user/${currentUser?.id}/read-all`, {
+        method: 'PUT'
+      });
       setNotifications(notifications.map(n => ({ ...n, read: true })));
     } catch (error) {
       console.error('Error marking all as read:', error);
@@ -67,7 +368,9 @@ const NotificationsPage = () => {
 
   const handleDelete = async (notificationId) => {
     try {
-      await axios.delete(`http://localhost:8081/api/notifications/${notificationId}`);
+      await fetch(`http://localhost:8081/api/notifications/${notificationId}`, {
+        method: 'DELETE'
+      });
       setNotifications(notifications.filter(n => n.id !== notificationId));
     } catch (error) {
       console.error('Error deleting notification:', error);
@@ -75,75 +378,75 @@ const NotificationsPage = () => {
   };
 
   const handleNotificationClick = (notification) => {
-    // Mark as read if unread
     if (!notification.read) {
       handleMarkAsRead(notification.id);
     }
     
-    // Navigate to related content if available
-    if (notification.relatedItemId) {
-      if (notification.type === 'COMMENT' || notification.type === 'LIKE' || notification.type === 'MENTION') {
-        navigate(`/post/${notification.relatedItemId}`);
-      } else if (notification.type === 'FOLLOW') {
-        navigate(`/profile/${notification.relatedItemId}`);
-      }
-    }
+    // In your implementation, navigate to the appropriate route based on notification type
+    console.log(`Navigate to: ${notification.type} - ${notification.relatedItemId}`);
   };
 
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 60) {
+      return `${diffMins} minutes ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hours ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
   };
 
-  const getNotificationTypeIcon = (type) => {
+  const NotificationIcon = ({ type }) => {
+    let icon;
+    let bgColor;
+    let textColor;
+    
     switch (type) {
       case 'LIKE':
-        return (
-          <div className="p-2 rounded-full bg-pink-100 text-pink-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-            </svg>
-          </div>
-        );
+        icon = <Heart className="h-5 w-5" />;
+        bgColor = 'bg-pink-100';
+        textColor = 'text-pink-600';
+        break;
       case 'COMMENT':
-        return (
-          <div className="p-2 rounded-full bg-blue-100 text-blue-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
-            </svg>
-          </div>
-        );
+        icon = <MessageSquare className="h-5 w-5" />;
+        bgColor = 'bg-blue-100';
+        textColor = 'text-blue-600';
+        break;
       case 'MENTION':
-        return (
-          <div className="p-2 rounded-full bg-purple-100 text-purple-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M14.243 5.757a6 6 0 10-.986 9.284 1 1 0 111.087 1.678A8 8 0 1118 10a3 3 0 01-4.8 2.401A4 4 0 1114 10a1 1 0 102 0c0-1.537-.586-3.07-1.757-4.243zM12 10a2 2 0 10-4 0 2 2 0 004 0z" clipRule="evenodd" />
-            </svg>
-          </div>
-        );
+        icon = <AtSign className="h-5 w-5" />;
+        bgColor = 'bg-purple-100';
+        textColor = 'text-purple-600';
+        break;
       case 'FOLLOW':
-        return (
-          <div className="p-2 rounded-full bg-green-100 text-green-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-            </svg>
-          </div>
-        );
+        icon = <UserPlus className="h-5 w-5" />;
+        bgColor = 'bg-green-100';
+        textColor = 'text-green-600';
+        break;
       default:
-        return (
-          <div className="p-2 rounded-full bg-gray-100 text-gray-600">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-          </div>
-        );
+        icon = <Info className="h-5 w-5" />;
+        bgColor = 'bg-gray-100';
+        textColor = 'text-gray-600';
     }
+    
+    return (
+      <div className={`p-2.5 rounded-full ${bgColor} ${textColor} transition-transform duration-200 group-hover:scale-110`}>
+        {icon}
+      </div>
+    );
   };
 
   if (!currentUser) {
@@ -155,98 +458,172 @@ const NotificationsPage = () => {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="bg-facebook-card shadow-lg rounded-lg overflow-hidden text-facebook-text-primary border border-facebook-divider">
-        <div className="bg-gradient-to-r from-facebook-primary to-facebook-hover px-6 py-8 text-white">
-          <h1 className="text-3xl font-bold">Notifications</h1>
-          <p className="text-white/80">Stay updated with your latest activities</p>
+    <div className="container mx-auto max-w-4xl px-4 py-8 mt-20">
+      <div className="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-100">
+        {/* Header with gradient */}
+        <div className="bg-gradient-to-r from-blue-500 to-cyan-400 px-6 py-8 text-white relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center space-x-3 mb-2">
+              <Bell className="h-7 w-7" />
+              <h1 className="text-3xl font-bold">Notifications</h1>
+            </div>
+            <p className="text-white/80">Stay updated with your latest activities</p>
+          </div>
+          
+          {/* Decorative waves */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 opacity-20">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
+              <path fill="white" fillOpacity="1" d="M0,128L48,112C96,96,192,64,288,64C384,64,480,96,576,128C672,160,768,192,864,176C960,160,1056,96,1152,64C1248,32,1344,32,1392,32L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+          </div>
         </div>
         
-        <div className="flex border-b border-facebook-divider">
-          <span 
-            className={`flex-1 py-3 px-4 font-medium text-center cursor-pointer ${
+        {/* Tabs */}
+        <div className="flex border-b border-gray-200">
+          <button 
+            className={`flex-1 py-3 px-4 font-medium text-center transition-colors duration-200 relative ${
               activeTab === 'all' 
-                ? 'text-facebook-primary border-b-2 border-facebook-primary' 
-                : 'text-facebook-text-secondary hover:text-facebook-text-primary'
-            }`} 
+                ? 'text-blue-600 font-semibold' 
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
             onClick={() => setActiveTab('all')}
           >
             All
-          </span>
-          <span 
-            className={`flex-1 py-3 px-4 font-medium text-center cursor-pointer ${
+            {activeTab === 'all' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            )}
+          </button>
+          <button 
+            className={`flex-1 py-3 px-4 font-medium text-center transition-colors duration-200 relative ${
               activeTab === 'unread' 
-                ? 'text-indigo-600 border-b-2 border-indigo-600' 
+                ? 'text-blue-600 font-semibold' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('unread')}
           >
             Unread
-          </span>
+            {notifications.filter(n => !n.read).length > 0 && (
+              <span className="ml-2 bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {notifications.filter(n => !n.read).length}
+              </span>
+            )}
+            {activeTab === 'unread' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            )}
+          </button>
         </div>
         
-        <div className="px-6 py-4 flex justify-between items-center border-b">
-          <h2 className="text-lg font-medium text-gray-800">Your Notifications</h2>
-          <span 
+        {/* Action bar */}
+        <div className="px-6 py-4 flex justify-between items-center border-b border-gray-100">
+          <h2 className="text-lg font-medium text-gray-800">
+            Your Notifications
+          </h2>
+          <button 
             onClick={handleMarkAllAsRead}
-            className="text-sm text-indigo-600 cursor-pointer hover:text-indigo-800 transition duration-300"
+            className="flex items-center gap-1.5 text-sm text-blue-600 font-medium hover:text-blue-800 transition-colors duration-200"
           >
+            <CheckAll className="w-4 h-4" />
             Mark all as read
-          </span>
+          </button>
         </div>
         
-        <div className="divide-y divide-gray-200">
+        {/* Notifications list */}
+        <div className="divide-y divide-gray-100">
           {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="flex flex-col justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              <p className="mt-4 text-gray-500">Loading notifications...</p>
             </div>
           ) : notifications.length === 0 ? (
-            <div className="py-20 text-center text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              <p className="mt-4">No {activeTab === 'unread' ? 'unread ' : ''}notifications found</p>
+            <div className="py-16 text-center">
+              <div className="flex justify-center">
+                <div className="bg-blue-50 p-4 rounded-full">
+                  <Bell className="h-10 w-10 text-blue-500" />
+                </div>
+              </div>
+              <p className="mt-4 text-lg font-medium text-gray-700">
+                No {activeTab === 'unread' ? 'unread ' : ''}notifications
+              </p>
+              <p className="mt-2 text-gray-500 max-w-md mx-auto">
+                {activeTab === 'unread' 
+                  ? "You've caught up with all your notifications. Check back later!" 
+                  : "You don't have any notifications yet. We'll notify you when something happens!"}
+              </p>
             </div>
           ) : (
             <ul>
               {notifications.map(notification => (
-                <li key={notification.id} className={`p-6 hover:bg-gray-50 ${notification.read ? '' : 'bg-indigo-50'}`}>
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      {getNotificationTypeIcon(notification.type)}
-                    </div>
+                <li 
+                  key={notification.id} 
+                  className={`group p-4 sm:p-6 hover:bg-gray-50 transition-colors duration-200 ${
+                    notification.read ? '' : 'bg-blue-50/50'
+                  }`}
+                >
+                  <div className="flex items-start sm:items-center">
+                    <NotificationIcon type={notification.type} />
                     
                     <div 
                       className="ml-4 flex-grow cursor-pointer"
                       onClick={() => handleNotificationClick(notification)}
                     >
                       <div className="font-medium text-gray-900">{notification.title}</div>
-                      <div className="text-gray-600">{notification.message}</div>
-                      <div className="text-sm text-gray-500 mt-1">{formatDate(notification.createdAt)}</div>
+                      <div className="text-gray-600 mt-1">{notification.message}</div>
+                      <div className="text-sm text-gray-500 mt-1.5">
+                        {formatDate(notification.createdAt)}
+                      </div>
                     </div>
                     
-                    <div className="flex-shrink-0 ml-4 space-x-2">
-                      {notification.read ? (
-                        <button 
-                          onClick={() => handleMarkAsUnread(notification.id)}
-                          className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300 hover:text-gray-900 transition duration-300"
-                        >
-                          Mark as unread
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => handleMarkAsRead(notification.id)}
-                          className="px-3 py-1 text-sm bg-indigo-500 text-white rounded hover:bg-indigo-600 transition duration-300"
-                        >
-                          Mark as read
-                        </button>
+                    <div className="flex items-center ml-2 relative">
+                      {!notification.read && (
+                        <span className="w-2.5 h-2.5 bg-blue-500 rounded-full absolute -left-1 top-1"></span>
                       )}
-                      <span 
-                        onClick={() => handleDelete(notification.id)}
-                        className="px-3 py-1 text-sm text-white rounded bg-gradient-to-r from-blue-500 to-red-500 hover:from-blue-600 hover:to-red-600 transition duration-300 cursor-pointer"
+                      
+                      <button 
+                        onClick={() => setSelectedNotification(
+                          selectedNotification === notification.id ? null : notification.id
+                        )}
+                        className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200"
                       >
-                        Delete
-                      </span>
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                      
+                      {selectedNotification === notification.id && (
+                        <div className="absolute right-0 top-full mt-1 bg-white shadow-lg rounded-md py-1 border border-gray-100 z-10 w-48">
+                          {notification.read ? (
+                            <button 
+                              className="w-full text-left px-4 py-2 flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+                              onClick={() => {
+                                handleMarkAsUnread(notification.id);
+                                setSelectedNotification(null);
+                              }}
+                            >
+                              <Eye className="w-4 h-4" />
+                              <span>Mark as unread</span>
+                            </button>
+                          ) : (
+                            <button 
+                              className="w-full text-left px-4 py-2 flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+                              onClick={() => {
+                                handleMarkAsRead(notification.id);
+                                setSelectedNotification(null);
+                              }}
+                            >
+                              <CheckCheck className="w-4 h-4" />
+                              <span>Mark as read</span>
+                            </button>
+                          )}
+                          <button 
+                            className="w-full text-left px-4 py-2 flex items-center space-x-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150"
+                            onClick={() => {
+                              handleDelete(notification.id);
+                              setSelectedNotification(null);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </li>

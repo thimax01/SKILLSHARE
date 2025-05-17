@@ -227,7 +227,7 @@ const AchievementsPage = () => {
                 onClick={() => setSelectedCategory('all')}
                 className={`w-full px-3 py-2 text-left rounded-lg transition-colors ${
                   selectedCategory === 'all' 
-                    ? 'bg-gradient-to-r from-[#4096FF] to-[#12B981] text-white' 
+                    ? 'bg-gradient-to-r from-[#4096FF] to-[##36B7CD] text-white' 
                     : 'hover:bg-gray-100 text-gray-700'
                 }`}
               >
@@ -267,7 +267,7 @@ const AchievementsPage = () => {
               {currentUser && (
                 <button 
                   onClick={() => document.getElementById('create-achievement')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="px-4 py-2 bg-gradient-to-r from-[#4096FF] to-[#12B981] text-white rounded-lg hover:from-[#3085EE] hover:to-[#0BA870] transition-colors"
+                  className="px-4 py-2 bg-gradient-to-r from-[#4096FF] to-[#36B7CD] text-white rounded-lg hover:from-[#3085EE] hover:to-[#36B7CD] transition-colors"
                 >
                   Create Your First Achievement
                 </button>
