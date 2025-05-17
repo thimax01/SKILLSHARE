@@ -227,7 +227,7 @@ const AchievementsPage = () => {
                 onClick={() => setSelectedCategory('all')}
                 className={`w-full px-3 py-2 text-left rounded-lg transition-colors ${
                   selectedCategory === 'all' 
-                    ? 'bg-gradient-to-r from-[#4096FF] to-[##36B7CD] text-white' 
+                    ? 'bg-gradient-to-r from-[#4096FF] to-[#36B7CD] text-white' 
                     : 'hover:bg-gray-100 text-gray-700'
                 }`}
               >
