@@ -891,7 +891,6 @@ const Groups = () => {
                   <div className="flex justify-between items-center">
                     <div className="flex items-center text-sm text-gray-500">
                       <Users size={16} className="mr-1" />
-                      <span>{group.memberCount || 0} members</span>
                     </div>
                     
                     {isOwner ? (
