@@ -146,7 +146,7 @@ public class PostController implements WebMvcConfigurer {
     @GetMapping("/posts/{postId}") 
     public ResponseEntity<?> getPostById(@PathVariable String postId) {
         try {
-            Post post = postRepository.findById(postId)  
+            Post post = postRepository.findById(postId)
                     .orElseThrow(() -> new ResourceNotFoundException("Post not found with id : '" + postId + "'"));
             return ResponseEntity.ok(post);
         } catch (ResourceNotFoundException e) {

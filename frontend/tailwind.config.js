@@ -5,8 +5,8 @@ export default {
     extend: {
       colors: {
         facebook: {
-          primary: 'linear-gradient(to right, #1877F2, #00FF7F)', // Blue to Green Gradient
-          hover: 'linear-gradient(to right, #166FE5, #00E676)',   // Darker Gradient for hover
+          primary: 'linear-gradient(to right, #1A73E8, #00C4B4)', // Blue to Green Gradient
+          hover: 'linear-gradient(to right, #1A73E8, #00C4B4)',   // Darker Gradient for hover
           dark: '#FFFFFF',         // Changed from '#18191A' to white
           card: '#F8F9FA',         // Changed from '#242526' to light gray
           hover2: '#E9ECEF',       // Changed from '#3A3B3C' to lighter gray

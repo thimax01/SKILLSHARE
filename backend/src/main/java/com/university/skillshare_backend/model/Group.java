@@ -22,4 +22,3 @@ public class Group {
         this.isPublic = true;  // Default to public
     }
 }
-

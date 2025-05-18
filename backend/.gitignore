@@ -28,11 +28,10 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+ 
 ### VS Code ###
 .vscode/
 
 # Ignore sensitive configuration files
 /application.properties
 *.properties
-
